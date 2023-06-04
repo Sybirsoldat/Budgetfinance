@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Budżet App</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 200px;
+            padding: 5px;
+        }
+
+        input[type="submit"] {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+
+        #budget {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Budetapp</h1>
+    <form id="incomeForm">
+        <h2>Dochody</h2>
+        <label for="incomeDescription">Opis:</label>
+        <input type="text" id="incomeDescription" required>
+        <label for="incomeAmount">Kwota:</label>
+        <input type="text" id="incomeAmount" required>
+        <input type="submit" value="Dodaj dochód">
+    </form>
+
+    <form id="expenseForm">
+        <h2>Wydatki</h2>
+        <label for="expenseDescription">Opis:</label>
+        <input type="text" id="expenseDescription" required>
+        <label for="expenseAmount">Kwota:</label>
+        <input type="text" id="expenseAmount" required>
+        <input type="submit" value="Dodaj wydatek">
+    </form>
+
+    <div id="budget">
+        <h2>Obecny budżet</h2>
+        <p>Dochody: <span id="incomeTotal">0</span></p>
+        <p>Wydatki: <span id="expenseTotal">0</span></p>
+        <p>Saldo: <span id="balance">0</span></p>
+    </div>
+
+    <script>
+        // Obsługa formularza dla dochodów
+        $("#incomeForm").submit(function(event) {
+            event.preventDefault();
+
+            var incomeDescription = $("#incomeDescription").val();
+            var incomeAmount = parseFloat($("#incomeAmount").val());
+
+            // Wywołanie funkcji do zapisu dochodu
+            addIncome(incomeDescription, incomeAmount);
+
+            // Wyczyszczenie pól formularza
+            $("#incomeDescription").val("");
+            $("#incomeAmount").val("");
+        });
+
+        // Obsługa formularza dla wydatków
+        $("#expenseForm").submit(function(event) {
+            event.preventDefault();
+
+            var expenseDescription = $("#expenseDescription").val();
+            var expenseAmount = parseFloat($("#expenseAmount").val());
+
+            // Wywołanie funkcji do zapisu wydatku
+            addExpense(expenseDescription, expenseAmount);
+
+            // Wyczyszczenie pól formularza
+            $("#expenseDescription").val("");
+            $("#expenseAmount").val("");
+        });
+
+        // Funkcja do zapisu dochodu
+        function addIncome(description, amount) {
+            // Wywołanie odpowiedniego endpointu w aplikacji budżetowej
+            $.ajax({
+                url: "/addIncome",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    description: description,
+                    amount: amount
+                }),
+                success: function(response) {
+                    // Zaktualizuj wyświetlane wartości budżetu
+                    updateBudget(response);
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        // Funkcja do zapisu wydatku
+        function addExpense(description, amount) {
+            // Wywołanie odpowiedniego endpointu w aplikacji budżetowej
+            $.ajax({
+                url: "/addExpense",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    description: description,
+                    amount: amount
+                }),
+                success: function(response) {
+                    // Zaktualizuj wyświetlane wartości budżetu
+                    updateBudget(response);
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        // Funkcja do aktualizacji wyświetlanych wartości budżetu
+        function updateBudget(budgetData) {
+            $("#incomeTotal").text(budgetData.incomeTotal);
+            $("#expenseTotal").text(budgetData.expenseTotal);
+            $("#balance").text(budgetData.balance);
+        }
+    </script>
+
+</body>
+</html>
